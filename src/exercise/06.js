@@ -13,25 +13,47 @@ const Status = {
 
 }
 
+const initialState = {
+  status: Status.idle,
+  pokemon: null,
+  error: null,
+}
+
 function PokemonInfo({pokemonName}) {
-  const [pokemon, setPokemon] = useState(null)
-  const [error, setError] = useState(null)
-  const [status, setStatus] = useState(Status.idle)
+  // const [pokemon, setPokemon] = useState(null)
+  // const [error, setError] = useState(null)
+  // const [status, setStatus] = useState(Status.idle)
+  const [state, setState] = useState(initialState)
+  const {status, pokemon, error} = state
   debugger
 
 
   useEffect(() => {
     if (pokemonName) {
-      // setPokemon(null)
-      setStatus(Status.pending)
+      // setStatus(Status.pending)
+      setState({
+        ...state,
+        status: Status.pending,
+      })
       fetchPokemon(pokemonName).then(
         pokemonData => {
-          setPokemon(pokemonData)
-          setStatus(Status.resolved)
+          // setPokemon(pokemonData)
+          // setStatus(Status.resolved)
+          setState({
+            ...state,
+            status: Status.resolved,
+            pokemon: pokemonData,
+            error: null
+          })
         },
         error => {
-          setError(error)
-          setStatus(Status.rejected)
+          // setError(error)
+          // setStatus(Status.rejected)
+          setState({
+            ...state,
+            status: Status.rejected,
+            error
+          })
         }
       )
     }
