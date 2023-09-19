@@ -5,25 +5,54 @@ import * as React from 'react'
 import {fetchPokemon, PokemonDataView, PokemonForm, PokemonInfoFallback} from '../pokemon'
 import {useEffect, useState} from "react";
 
+const Status = {
+  idle: 'no request made yet',
+  pending: 'request started',
+  resolved: 'request successful',
+  rejected: 'request failed',
+
+}
+
 function PokemonInfo({pokemonName}) {
   const [pokemon, setPokemon] = useState(null)
+  const [error, setError] = useState(null)
+  const [status, setStatus] = useState(Status.idle)
+  debugger
 
 
   useEffect(() => {
     if (pokemonName) {
-      setPokemon(null)
-      fetchPokemon(pokemonName).then(pokemonData => setPokemon(pokemonData))
+      // setPokemon(null)
+      setStatus(Status.pending)
+      fetchPokemon(pokemonName).then(
+        pokemonData => {
+          setPokemon(pokemonData)
+          setStatus(Status.resolved)
+        },
+        error => {
+          setError(error)
+          setStatus(Status.rejected)
+        }
+      )
     }
   }, [pokemonName])
 
-  return (<>
-    {!pokemonName
-      ? 'Submit a pokemon'
-      : !pokemon
-        ? <PokemonInfoFallback name={pokemonName} />
-        : <PokemonDataView pokemon={pokemon} />
-    }
-  </>)
+  switch (status) {
+    case Status.idle:
+      return 'Submit a pokemon'
+    case Status.pending:
+      return <PokemonInfoFallback name={pokemonName} />
+    case Status.resolved:
+      return <PokemonDataView pokemon={pokemon} />
+    case Status.rejected:
+      return <div role="alert">
+        There was an error: <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+      </div>
+    default:
+      throw new Error(`There is no such status: ${status}`);
+  }
+
+
 }
 
 function App() {
