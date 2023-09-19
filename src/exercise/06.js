@@ -67,14 +67,44 @@ function PokemonInfo({pokemonName}) {
     case Status.resolved:
       return <PokemonDataView pokemon={pokemon} />
     case Status.rejected:
-      return <div role="alert">
-        There was an error: <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
-      </div>
+      throw error
     default:
       throw new Error(`There is no such status: ${status}`);
   }
+}
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
 
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, info) {
+    // Example "componentStack":
+    //   in ComponentThatThrows (created by App)
+    //   in ErrorBoundary (created by App)
+    //   in div (created by App)
+    //   in App
+    console.warn(error, info.componentStack);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      // return this.props.fallback;
+      return (<><div role="alert">
+        There was an error:
+        <pre style={{whiteSpace: 'normal', color: 'red'}}>{this.state.error?.message}</pre>
+      </div></>);
+    }
+
+    return this.props.children;
+  }
 }
 
 function App() {
@@ -89,7 +119,9 @@ function App() {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <PokemonInfo pokemonName={pokemonName} />
+        <ErrorBoundary fallback={<p>Something went wrong</p>}>
+          <PokemonInfo pokemonName={pokemonName} />
+        </ErrorBoundary>
       </div>
     </div>
   )
