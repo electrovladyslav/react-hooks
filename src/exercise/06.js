@@ -20,9 +20,6 @@ const initialState = {
 }
 
 function PokemonInfo({pokemonName}) {
-  // const [pokemon, setPokemon] = useState(null)
-  // const [error, setError] = useState(null)
-  // const [status, setStatus] = useState(Status.idle)
   const [state, setState] = useState(initialState)
   const {status, pokemon, error} = state
   debugger
@@ -30,15 +27,12 @@ function PokemonInfo({pokemonName}) {
 
   useEffect(() => {
     if (pokemonName) {
-      // setStatus(Status.pending)
       setState({
         ...state,
         status: Status.pending,
       })
       fetchPokemon(pokemonName).then(
         pokemonData => {
-          // setPokemon(pokemonData)
-          // setStatus(Status.resolved)
           setState({
             ...state,
             status: Status.resolved,
@@ -47,8 +41,6 @@ function PokemonInfo({pokemonName}) {
           })
         },
         error => {
-          // setError(error)
-          // setStatus(Status.rejected)
           setState({
             ...state,
             status: Status.rejected,
@@ -95,16 +87,20 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      // You can render any custom fallback UI
-      // return this.props.fallback;
-      return (<><div role="alert">
-        There was an error:
-        <pre style={{whiteSpace: 'normal', color: 'red'}}>{this.state.error?.message}</pre>
-      </div></>);
+      return (<this.props.FallbackComponent error={this.state.error} />);
     }
 
     return this.props.children;
   }
+}
+
+function ErrorFallback({error}) {
+  return (
+    <div role="alert">
+      There was an error:{' '}
+      <pre style={{whiteSpace: 'normal', color: 'red'}}>{error.message}</pre>
+    </div>
+  )
 }
 
 function App() {
@@ -119,7 +115,7 @@ function App() {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <ErrorBoundary fallback={<p>Something went wrong</p>}>
+        <ErrorBoundary FallbackComponent={ErrorFallback} key={pokemonName}>
           <PokemonInfo pokemonName={pokemonName} />
         </ErrorBoundary>
       </div>
