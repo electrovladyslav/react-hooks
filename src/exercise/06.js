@@ -4,7 +4,7 @@
 import * as React from 'react'
 import {fetchPokemon, PokemonDataView, PokemonForm, PokemonInfoFallback} from '../pokemon'
 import {useEffect, useState} from "react";
-
+import { ErrorBoundary } from "react-error-boundary";
 const Status = {
   idle: 'no request made yet',
   pending: 'request started',
@@ -62,35 +62,6 @@ function PokemonInfo({pokemonName}) {
       throw error
     default:
       throw new Error(`There is no such status: ${status}`);
-  }
-}
-
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error) {
-    // Update state so the next render will show the fallback UI.
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, info) {
-    // Example "componentStack":
-    //   in ComponentThatThrows (created by App)
-    //   in ErrorBoundary (created by App)
-    //   in div (created by App)
-    //   in App
-    console.warn(error, info.componentStack);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (<this.props.FallbackComponent error={this.state.error} />);
-    }
-
-    return this.props.children;
   }
 }
 
